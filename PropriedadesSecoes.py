@@ -107,7 +107,7 @@ if st.button("Calcular e Plotar"):
         # Plot malha + centroides
         st.subheader("Malha e Centroides")
         fig, ax = plt.subplots(figsize=(6, 6))
-        geom.plot_mesh(ax=ax, color="lightgray")  # cor da malha
+        secao.plot_mesh(ax=ax, color="lightgray")  # cor da malha
         secao.plot_centroids(ax=ax)
         st.pyplot(fig)
 
