@@ -4,6 +4,7 @@ import shapely as sh
 import sectionproperties.pre as SPpre
 import sectionproperties.analysis as SPana
 import matplotlib.pyplot as plt
+from sectionproperties.pre import Material
 
 # ===============================
 # Funções auxiliares
