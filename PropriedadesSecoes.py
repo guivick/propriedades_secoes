@@ -80,7 +80,7 @@ for i in range(num_aberturas):
 # Entrada do tamanho da malha
 # -------------------------------
 st.subheader("Parâmetros da malha")
-tam_malha = st.number_input("Tamanho da malha", value=50.0)
+tam_malha = st.number_input("Tamanho da malha", value=1.0)
 
 # -------------------------------
 # PROCESSAR
@@ -107,8 +107,7 @@ if st.button("Calcular e Plotar"):
         # Plot malha + centroides
         st.subheader("Malha e Centroides")
         fig, ax = plt.subplots(figsize=(6, 6))
-        secao.plot_mesh(ax=ax, color="lightgray")  # cor da malha
-        # secao.plot_centroids(ax=ax)
+        secao.plot_centroids(ax=ax)
         st.pyplot(fig)
 
     except Exception as e:
