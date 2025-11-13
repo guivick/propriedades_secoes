@@ -38,9 +38,9 @@ def plot_resultados(secao):
 # Interface Streamlit
 # ===============================
 
-st.title("Análise de Seção com sectionproperties")
+st.title("Análise de Seção Plana")
 st.write("Eng. Guilherme Vick")
-st.write("Informe as coordenadas da seção.")
+#st.write("Informe as coordenadas da seção.")
 
 # -------------------------------
 # Entrada do polígono externo
@@ -48,9 +48,9 @@ st.write("Informe as coordenadas da seção.")
 st.subheader("Coordenadas do Polígono Externo")
 
 default_ext = [{"x": 0.0, "y": 0.0},
-               {"x": 1.0, "y": 0.0},
-               {"x": 1.0, "y": 1.0},
-               {"x": 0.0, "y": 1.0}]
+               {"x": 20.0, "y": 0.0},
+               {"x": 20.0, "y": 50.0},
+               {"x": 0.0, "y": 50.0}]
 
 dados_ext = st.data_editor(
     default_ext,
@@ -68,10 +68,10 @@ num_aberturas = st.number_input("Número de aberturas", min_value=0, step=1)
 lista_aberturas = []
 for i in range(num_aberturas):
     st.markdown(f"### Abertura {i+1}")
-    default_aber = [{"x": 0.2, "y": 0.2},
-                    {"x": 0.8, "y": 0.2},
-                    {"x": 0.8, "y": 0.8},
-                    {"x": 0.2, "y": 0.8}]
+    default_aber = [{"x": 5, "y": 5},
+                    {"x": 10, "y": 5},
+                    {"x": 10, "y": 10},
+                    {"x": 5, "y": 10}]
     tbl = st.data_editor(default_aber, num_rows="dynamic", key=f"aber_{i}")
     coords = [(float(row["x"]), float(row["y"])) for row in tbl]
     lista_aberturas.append(coords)
@@ -108,7 +108,7 @@ if st.button("Calcular e Plotar"):
         st.subheader("Malha e Centroides")
         fig, ax = plt.subplots(figsize=(6, 6))
         secao.plot_mesh(ax=ax, color="lightgray")  # cor da malha
-        secao.plot_centroids(ax=ax)
+        # secao.plot_centroids(ax=ax)
         st.pyplot(fig)
 
     except Exception as e:
