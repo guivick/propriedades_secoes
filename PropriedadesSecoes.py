@@ -2,11 +2,12 @@ import streamlit as st
 import numpy as np
 import shapely as sh
 import sectionproperties.pre as SPpre
-import sectionproperties.pre.library as SPlib
 import sectionproperties.analysis as SPana
 import matplotlib.pyplot as plt
 
-# Funções fornecidas
+# ===============================
+# Funções auxiliares
+# ===============================
 
 def cria_poligono(coordenadas_contorno, coordenadas_aberturas):
     return sh.Polygon(shell=coordenadas_contorno, holes=coordenadas_aberturas)
@@ -32,79 +33,79 @@ def plot_resultados(secao):
     st.write(f"**Momento de Inércia Ixy:** {secao.get_ic()[2]:.3f}")
     st.write(f"**Momento de Torção J:** {secao.get_j():.3f}")
 
+# ===============================
 # Interface Streamlit
-
-from streamlit_drawable_canvas import st_canvas
+# ===============================
 
 st.title("Análise de Seção com sectionproperties")
-st.write("Desenhe o polígono externo e as aberturas diretamente na tela.")
+st.write("Eng. Guilherme Vick")
+st.write("Informe as coordenadas da seção.")
 
-st.subheader("Desenho do Polígono Externo")
-canvas_ext = st_canvas(
-    fill_color="rgba(255, 0, 0, 0.2)",
-    stroke_color="#000000",
-    stroke_width=2,
-    background_color="#FFFFFF",
-    height=400,
-    width=400,
-    drawing_mode="polygon",
-    key="canvas_ext"
+# -------------------------------
+# Entrada do polígono externo
+# -------------------------------
+st.subheader("Coordenadas do Polígono Externo")
+
+default_ext = [{"x": 0.0, "y": 0.0},
+               {"x": 1.0, "y": 0.0},
+               {"x": 1.0, "y": 1.0},
+               {"x": 0.0, "y": 1.0}]
+
+dados_ext = st.data_editor(
+    default_ext,
+    num_rows="dynamic",
+    key="ext_table"
 )
 
-st.subheader("Desenho das Aberturas")
+# -------------------------------
+# Entrada das aberturas
+# -------------------------------
+st.subheader("Aberturas Internas (opcional)")
+
 num_aberturas = st.number_input("Número de aberturas", min_value=0, step=1)
-canvas_aberturas = []
+
+lista_aberturas = []
 for i in range(num_aberturas):
     st.markdown(f"### Abertura {i+1}")
-    canvas = st_canvas(
-        fill_color="rgba(0, 0, 255, 0.2)",
-        stroke_color="#0000FF",
-        stroke_width=2,
-        background_color="#FFFFFF",
-        height=300,
-        width=400,
-        drawing_mode="polygon",
-        key=f"canvas_aber_{i}"
-    )
-    canvas_aberturas.append(canvas)
+    default_aber = [{"x": 0.2, "y": 0.2},
+                    {"x": 0.8, "y": 0.2},
+                    {"x": 0.8, "y": 0.8},
+                    {"x": 0.2, "y": 0.8}]
+    tbl = st.data_editor(default_aber, num_rows="dynamic", key=f"aber_{i}")
+    coords = [(float(row["x"]), float(row["y"])) for row in tbl]
+    lista_aberturas.append(coords)
 
-st.subheader("Tamanho da malha")
+# -------------------------------
+# Entrada do tamanho da malha
+# -------------------------------
+st.subheader("Parâmetros da malha")
 tam_malha = st.number_input("Tamanho da malha", value=50.0)
 
+# -------------------------------
+# PROCESSAR
+# -------------------------------
 if st.button("Calcular e Plotar"):
     try:
-        # Extrair polígono externo
-        coords_ext = []
-        if canvas_ext.json_data and "objects" in canvas_ext.json_data:
-            for obj in canvas_ext.json_data["objects"]:
-                if "path" in obj:
-                    for p in obj["path"]:
-                        if isinstance(p, list) and len(p) == 3:
-                            coords_ext.append((p[1], p[2]))
+        # Converte polígono externo
+        coords_ext = [(float(row["x"]), float(row["y"])) for row in dados_ext]
 
-        # Extrair aberturas
-        lista_aberturas = []
-        for canvas in canvas_aberturas:
-            coords = []
-            if canvas.json_data and "objects" in canvas.json_data:
-                for obj in canvas.json_data["objects"]:
-                    if "path" in obj:
-                        for p in obj["path"]:
-                            if isinstance(p, list) and len(p) == 3:
-                                coords.append((p[1], p[2]))
-            if coords:
-                lista_aberturas.append(coords)
+        # Remove buracos vazios
+        lista_aberturas = [a for a in lista_aberturas if len(a) > 0]
 
+        # Criar polígono
         poligono = cria_poligono(coords_ext, lista_aberturas)
+
+        # Criar geometria
         geom = cria_geometria(poligono, tam_malha)
         secao = cria_secao(geom)
         calcula_propriedades(secao)
 
+        # Mostrar resultados
         plot_resultados(secao)
 
+        # Plot malha + centroides
         st.subheader("Malha e Centroides")
-        fig = plt.figure(figsize=(6, 6))
-        ax = fig.gca()
+        fig, ax = plt.subplots(figsize=(6, 6))
         secao.plot_centroids(ax=ax)
         st.pyplot(fig)
 
