@@ -4,27 +4,17 @@ import shapely as sh
 import sectionproperties.pre as SPpre
 import sectionproperties.analysis as SPana
 import matplotlib.pyplot as plt
-from sectionproperties.pre import Material
 
 # ===============================
 # Funções auxiliares
 # ===============================
 
-# create materials
-steel = Material(
-    name="Steel",
-    elastic_modulus=200e3,
-    poissons_ratio=0.3,
-    density=7.85e-6,
-    yield_strength=500,
-    color="grey",
-)
 
 def cria_poligono(coordenadas_contorno, coordenadas_aberturas):
     return sh.Polygon(shell=coordenadas_contorno, holes=coordenadas_aberturas)
 
-def cria_geometria(poligono, tamanho_malha, material):
-    geom = SPpre.Geometry(geom=poligono, material=material)
+def cria_geometria(poligono, tamanho_malha):
+    geom = SPpre.Geometry(geom=poligono)
     geom.create_mesh(tamanho_malha)
     return geom
 
@@ -117,6 +107,7 @@ if st.button("Calcular e Plotar"):
         # Plot malha + centroides
         st.subheader("Malha e Centroides")
         fig, ax = plt.subplots(figsize=(6, 6))
+        geom.plot_mesh(ax=ax, color="lightgray")  # cor da malha
         secao.plot_centroids(ax=ax)
         st.pyplot(fig)
 
