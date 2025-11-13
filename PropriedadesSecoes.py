@@ -9,11 +9,21 @@ import matplotlib.pyplot as plt
 # Funções auxiliares
 # ===============================
 
+# create materials
+steel = Material(
+    name="Steel",
+    elastic_modulus=200e3,
+    poissons_ratio=0.3,
+    density=7.85e-6,
+    yield_strength=500,
+    color="grey",
+)
+
 def cria_poligono(coordenadas_contorno, coordenadas_aberturas):
     return sh.Polygon(shell=coordenadas_contorno, holes=coordenadas_aberturas)
 
-def cria_geometria(poligono, tamanho_malha):
-    geom = SPpre.Geometry(geom=poligono)
+def cria_geometria(poligono, tamanho_malha, material):
+    geom = SPpre.Geometry(geom=poligono, material=material)
     geom.create_mesh(tamanho_malha)
     return geom
 
@@ -96,7 +106,7 @@ if st.button("Calcular e Plotar"):
         poligono = cria_poligono(coords_ext, lista_aberturas)
 
         # Criar geometria
-        geom = cria_geometria(poligono, tam_malha)
+        geom = cria_geometria(poligono, tam_malha, material)
         secao = cria_secao(geom)
         calcula_propriedades(secao)
 
