@@ -106,7 +106,7 @@ if st.button("Calcular e Plotar"):
         poligono = cria_poligono(coords_ext, lista_aberturas)
 
         # Criar geometria
-        geom = cria_geometria(poligono, tam_malha, material)
+        geom = cria_geometria(poligono, tam_malha, steel)
         secao = cria_secao(geom)
         calcula_propriedades(secao)
 
